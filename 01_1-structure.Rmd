@@ -1,0 +1,162 @@
+# General Structure of Analysis {#structure}
+
+Different designs require different models. But in R, nearly all other steps are identical before and after model fitting – assuming that, regardless of the design, you are interested in more or less the same question:
+
+Assessing how a numeric response variable (e.g. yield) varies by a treatment factor, or factors. 
+
+Being able to learn and understand these steps, will let you analyse any data you have available from on-station trials! In these guides we will use the lmer function within R to fit (nearly) all the models we may want to consider for these agricultural designs. This fits a linear mixed effects regression model.
+A detailed explanation of these statistical models, and their applicability to agricultural analyses can be found here: https://www.jic.ac.uk/services/statistics/readingadvice/booklets/topmix.html.
+In short, these models enable us to separate out factors that are of interest to us (e.g. treatments, varieties) to factors which are not of interest to us, but that still introduce  (e.g. blocks).
+On-farm trials, less standard designs, and more complex outcome variables (e.g. disease scores, incidence rates, growth patterns) may require more care with analysis and more consideration in how to analyse and interpret results. Many of the general principles are the same, as is a large portion of the R syntax, but in these cases more care is needed to ensure a coherent analysis. There is no “recipe” which will work in the same way every time, each analysis may bring up new or unexpected considerations that need to be addressed rather than forcing the analysis to fit within a standard framework.
+
+## R Syntax
+
+Analysing data from "designed" experiments usually follows a very similar set of processes, with minor modifications needed to adjust for the particular design. There are 8 general steps that need to be followed, and the R syntax for each of these steps is very similar for all designs, again only minor modifications are needed regardless of whether there is an RCBD or a lattice design or a strip-split-plot design! Moving into less traditional designs, or multi-environment trials adds significantly to the complexity of the analysis required, and will have a less standardised set of analyses. 
+
+
+### Step 1: Load Libraries
+```
+library(ggplot2)
+library(emmeans)
+library(doBy)
+library(lmerTest)
+library(multcompView)
+```
+
+### Step 2: Import Data
+```
+mydata <- read.csv("C:/Users/Admin/Desktop/mydata.csv")
+```
+### Step 3: Check and update data
+```
+summary(mydata)
+str(mydata)
+mydata$treatment<-factor(mydata$treatment)
+```
+### Step 4. Explore data
+```
+ggplot(data= mydata,aes(y=response,x=treatment,col= block))+
+geom_point()
+
+summaryBy(response ~ treatment, data= mydata, FUN=c(mean,median,sd))
+```
+### Step 5. Specify a model for data
+```
+mymodel <-lmer(response~treatment+(1|block), data=mydata)
+```
+### Step 6. Check the model
+```
+plot(mymodel)
+
+qqnorm(resid(mymodel))
+qqline(resid(mymodel))
+```
+### Step 7. Interpret the model
+```
+anova(mymodel, ddf="Kenward-Roger")
+print(VarCorr(mymodel), comp=("Variance"))
+```
+### Step 8. Present the results from the model
+```
+emmip(mymodel,~treatment,CIs = TRUE)
+emmeans(mymodel, ~ treatment)
+cld(emmeans(mymodel, ~ treatment))
+```
+## Explanation of Each Step
+
+### Step 1. Load Libraries
+R is an open-source piece of software. One major benefit of this is that many useful functions for importing, manipulating, analysing and presenting data have been created by other R users, beyond what is available in the “base” R packages. Many of these functions are implemented in packages, or libraries, which need to be downloaded and installed separately from your main R and RStudio installation. The main ones you will need to be able to follow this set of guides are:
+```ggplot2```: A powerful graphing package, allowing high quality graphs to be produced
+```doBy```: A package for easy and customisable calculations of summary statistics
+```lmerTest```: A package for fitting and evaluating linear mixed effects regression models, using REML (restricted maximum likelihood) methods as found in Genstat
+```emmeans```: A package to calculate estimated marginal means and confidence intervals from statistical models. Similar to EMMEANS in Genstat or LSMEANS in SAS.
+```multcompView```: A package for conducting mean separation analysis from mixed effects regression models
+To install these packages onto your computer you need an internet connection, and for a clean installation of R and RStudio onto your computer. You only need to install an R package once, using install.packages() or through the menus, but you do need to load the packages every time you come to use them using library().
+You can learn more about libraries here: https://www.datacamp.com/community/tutorials/r-packages-guide
+
+### Step 2: Import Data
+
+```
+mydata <- read.csv("C:/Users/Admin/Desktop/mydata.csv")
+```
+
+Key things to consider before even attempting to read your data into R:
+•	Is your data in a single sheet, in a continuous rectangle, with no blank rows or columns?
+•	Is there a single row at the top of your data containing the variable names?
+•	Are the variable names concise, but informative, and contain no spaces or punctuation?
+•	Are missing values consistently coded in your dataset?
+•	Are factor levels consistently coded in your dataset (even including case sensitive – R will consider “treatment A” and “Treatment a” as 2 different treatments.
+•	If you have dates in your data then are they always written in the same format?
+You can learn more about some of the important considerations of preparing your data for importing into R here: http://www.sthda.com/english/wiki/best-practices-in-preparing-data-files-for-importing-into-r
+
+### Step 3: Check and update data
+There can be many unforeseen issues when importing your dataset if it is not cleaned in the way you would like it to be. Checking the data, both visually, and using functions like summary() and str() can help you see if there have been any issues which may need addressing. Common problems you might see at this point would be:
+•	Variable names changing: if your variable names contained spaces, or punctuation, then R will change them and introduce extra dots into the name. Ideally you want variable names in R to be concise, and contain no punctuation. This will make writing the syntax much easier
+•	Missing value codes: If you have missing values in your dataset, check that R has imported these as missing values. If in Excel you have a blank cell then this will be imported correctly into R. If you are using a code (like -999 for example) R will not automatically recognise this as a missing value.
+•	Factors being treated as numbers
+
+These are largely the same concerns as in step 2; but being checked from within R rather than within Excel.
+
+Why is it important to make sure factor variables are treated as factors?
+
+We are often taught to use codes when entering and collecting data for categorical variables, such as treatment or variety. If we use numeric codes, i.e. 1,2,3,4 for 4 treatments, then we can potentially see problems with our analysis unless we specify explicitly that this is the case. This problem is not an issue is we use non-numeric codes for treatments, e.g. A,B,C,D. The same data is presented below twice; once with estimates of the treatment means from an analysis of a numeric treatment variable and once from a factor treatment variable.
+
+
+With the numeric variable the model tries to fit the treatment effect as if it is a continuous scale; i.e. that treatment 2 is 1 point higher than treatment 1. With the factor variable the model treats all 4 treatment groups as being independent of each other. In this case if we had not converted the treatment to a factor we would have had a completely useless model, telling us that there was no treatment effect and providing severe over-estimates of treatments 2 and 4 and a sever underestimate of treatment 3. In fact there is a very highly significant treatment effect in this data, which can only be identified from the analysis when the variable is treated as a factor. 
+
+### Step 4. Explore data
+
+Exploratory analysis helps us to understand the results we have found in our data. It can show us 
+•	if there are clear effects from visual inspection 
+•	the magnitude of any effects, 
+•	the variability in our results
+•	if our data is distributed in a way that will lead to a standard modelling approach
+We can also calculate summary statistics, such as means and percentages.
+
+http://r4ds.had.co.nz/exploratory-data-analysis.html
+
+### Step 5. Specify a model for data
+
+```
+mymodel <-lmer(response~treatment+(1|block),data=mydata)
+```
+Cross link to slides of examples for model construction.
+
+### Step 6. Check the model
+
+```
+plot(mymodel)
+```
+
+There are three main assumptions that are worthwhile considering when assessing if the model being fitted is valid from a statistical perspective.
+1.	“Independence”: This assumption can be met by including the dependencies within the design of the experiment within the model through the use of random effects. For example - two plots within the same block, may have some level of inter-relatedness. Including a “block” term in the model allows this assumption to be met in this instance.
+2.	“Homogeneity”: This assumption relates to whether the variability in each treatment group is similar. In order to calculate standard errors and p-values from the model an assumption is made that there is constant variance across all treatments. If this assumption does not hold then these standard errors and p-values will not be accurate. It is common in many situations to have more variability in high yielding treatments than in low yielding treatments. E.g. 4 treatments, each replicated 8 times
+ 
+### Step 7. Interpret the model
+```
+anova(mymodel, ddf="Kenward-Roger")
+print(VarCorr(mymodel), comp=("Variance"))
+```
+
+
+
+Summary of Kenward-Rogers degree of freedom from mixed models:
+https://www.jstatsoft.org/article/view/v082i13/v82i13.pdf
+
+### Step 8. Present the results from the model
+
+```
+emmip(mymodel,~treatment,CIs = TRUE)
+emmeans(mymodel, ~ treatment)
+cld(emmeans(mymodel, ~ treatment))
+
+```
+https://cran.r-project.org/web/packages/emmeans/vignettes/basics.html
+https://cran.r-project.org/web/packages/emmeans/vignettes/interactions.html
+
+##A Note on Plots
+When producing plots in R there are a myriad of options for formatting and presentation to make these look better. For the purpose of simplicity the basic syntax only has been included in this document, but on some occasions the graphs themselves will have been modified compared to the output that would have been produced from this syntax. Nearly all plots are produced using the ggplot2. For help with presentation of graphs the R CookBook website is an excellent resource. http://www.cookbook-r.com/
+
+## Other resources
+For other agricultural trials, particularly if you have slightly different hypotheses to this standard framework, this provides a useful resource and overview of using R for agricultural analyses: http://rstats4ag.org
+There are also specific examples of agricultural experiments with more complex designs, particularly in dealing with repeated measurements over time, in an R package called agriTutorial, which provides 5 specific case-studies of analysing field trial data in R. https://cran.r-project.org/web/packages/agriTutorial/agriTutorial.pdf

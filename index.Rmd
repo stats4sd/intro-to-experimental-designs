@@ -1,0 +1,30 @@
+--- 
+title: "Analysis of Common Agricultural Designs in R"
+author: "Sam Dumble"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+always_allow_html: yes
+description: "A series of guidance, tutorials and examples for dealing with the data analysis of experiments following common agricultural designs using R and RStudio"
+---
+
+# Preface 
+
+All of these tutorials assume that you have already been able to install R and RStudio onto your computer and that you have a reliable internet connection. For help with orientation of R for new users please see [add cross reference to an intro document].  
+1. [RCBDs (Randomised complete block design)](#rcbd)  
+2. [Split Plot Design](#split)  
+3. [Adjusting for Covariates](#covar)   
+4. [Factorial designs and interactions](#factors)  
+5. [Multi Environment Trials](#gxe)  
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown',"emmeans","ggplot2","doBy","lmerTest","multcompView","shiny"
+), 'packages.bib')
+```
+

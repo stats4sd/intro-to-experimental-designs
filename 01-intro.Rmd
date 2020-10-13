@@ -1,0 +1,6 @@
+# Introduction {#intro}
+
+```{r,echo=FALSE}
+shiny::includeHTML("C:/Users/sdumb/Dropbox (SSD)/ssd-shiny-server/IntroToExperimentalDesigns/embed.html")
+```
+

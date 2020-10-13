@@ -1,0 +1,37 @@
+rep,plot,treat,yield,striga
+1,2,8 maize,1.14,2798
+4,3,5 C.siamea,1.74,0
+4,6,8 maize,1.95,1787
+1,9,7 groundnut,2.06,129
+1,7,5 C.siamea,2.09,1
+3,3,8 maize,2.15,1144
+3,8,5 C.siamea,2.21,0
+1,6,9 nat fallow,2.22,228
+3,9,6 C.calo,2.34,0
+2,9,5 C.siamea,2.38,0
+2,5,6 C.calo,2.62,0
+4,5,6 C.calo,2.65,105
+2,3,8 maize,2.66,400
+1,8,6 C.calo,2.74,71
+3,5,9 nat fallow,2.9,0
+2,6,9 nat fallow,3,203
+3,4,7 groundnut,3.03,120
+4,8,9 nat fallow,3.12,89
+3,6,4 F.congesta,3.16,1
+3,1,2 G.sepium,3.19,1371
+3,2,3 L.leuco,3.39,0
+2,7,4 F.congesta,3.45,49
+1,4,3 L.leuco,3.48,0
+4,7,4 F.congesta,3.48,1741
+4,1,7 groundnut,3.52,270
+2,8,3 L.leuco,3.62,0
+2,2,7 groundnut,3.72,1
+1,3,4 F.congesta,3.75,1
+2,4,2 G.sepium,3.85,721
+4,9,2 G.sepium,3.95,755
+4,4,3 L.leuco,4.21,41
+1,1,2 G.sepium,4.39,1
+2,1,1 S.sesban,4.72,0
+3,7,1 S.sesban,5.29,1
+1,5,1 S.sesban,5.64,0
+4,2,1 S.sesban,6.54,0

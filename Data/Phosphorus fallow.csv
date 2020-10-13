@@ -1,0 +1,73 @@
+farmer,rep,mainplot,subplot,fallow,nitrogen,grain,striga1,striga2,striga3,striga4
+BTS-10,7,1,1,Continous Maize,No,0.8,1438,1736,37,
+BTS-10,7,1,2,Continous Maize,Yes,3,1340,960,16,
+BTS-10,7,2,1,Tithonia,Yes,2.2,482,2092,63,
+BTS-10,7,2,2,Tithonia,No,2.4,340,660,32,
+BTS-10,7,3,1,Crotolaria,Yes,1.2,98,680,15,
+BTS-10,7,3,2,Crotolaria,No,3,90,921,57,
+BTS-10,7,4,1,Tephrosia,Yes,0.9,232,2645,57,
+BTS-10,7,4,2,Tephrosia,No,4.1,120,1033,95,
+BTS-10B,8,1,1,Tephrosia,No,0.4,2854,1709,12,
+BTS-10B,8,1,2,Tephrosia,Yes,0.5,1715,941,24,
+BTS-10B,8,2,1,Crotolaria,No,2.2,1210,2478,26,
+BTS-10B,8,2,2,Crotolaria,Yes,2.4,1501,1665,31,
+BTS-10B,8,3,1,Continous Maize,No,2.1,582,680,12,
+BTS-10B,8,3,2,Continous Maize,Yes,5.3,361,900,32,
+BTS-10B,8,4,1,Tithonia,Yes,0.9,933,1962,10,
+BTS-10B,8,4,2,Tithonia,No,3.5,710,1621,24,
+BTS-18,9,1,1,Tephrosia,No,0.4,2999,1410,45,
+BTS-18,9,1,2,Tephrosia,Yes,2.1,2351,1710,25,
+BTS-18,9,2,1,Continous Maize,No,4.7,851,241,14,
+BTS-18,9,2,2,Continous Maize,Yes,4.9,620,353,10,
+BTS-18,9,3,1,Crotolaria,Yes,3.5,719,568,5,
+BTS-18,9,3,2,Crotolaria,No,5.2,614,322,15,
+BTS-18,9,4,1,Tithonia,No,1.3,1240,722,30,
+BTS-18,9,4,2,Tithonia,Yes,5,810,210,10,
+BTS-25,5,1,1,Crotolaria,Yes,0,652,63,105,81
+BTS-25,5,1,2,Crotolaria,No,0,269,75,168,1158
+BTS-25,5,2,1,Continous Maize,Yes,0,72,19,19,161
+BTS-25,5,2,2,Continous Maize,No,0.1,28,14,80,315
+BTS-25,5,3,1,Tithonia,No,0,431,167,88,341
+BTS-25,5,3,2,Tithonia,Yes,0,382,144,131,1032
+BTS-25,5,4,1,Tephrosia,No,0.4,146,24,73,192
+BTS-25,5,4,2,Tephrosia,Yes,0.8,38,13,160,238
+BTS-27,2,1,1,Continous Maize,No,0.6,223,9,402,964
+BTS-27,2,1,2,Continous Maize,Yes,0.8,154,3,1208,1370
+BTS-27,2,2,1,Tephrosia,Yes,1.3,278,92,13,446
+BTS-27,2,2,2,Tephrosia,No,1.4,77,15,93,520
+BTS-27,2,3,1,Crotolaria,No,1.3,99,32,10,456
+BTS-27,2,3,2,Crotolaria,Yes,2.1,42,11,49,409
+BTS-27,2,4,1,Tithonia,No,0.3,493,136,18,363
+BTS-27,2,4,2,Tithonia,Yes,0.9,272,18,102,869
+BTS-32,3,1,1,Crotolaria,Yes,1,102,3,0,2
+BTS-32,3,1,2,Crotolaria,No,1.3,91,5,0,0
+BTS-32,3,2,1,Tithonia,No,1,57,2,2,8
+BTS-32,3,2,2,Tithonia,Yes,1.1,34,8,1,8
+BTS-32,3,3,1,Tephrosia,No,1,89,41,0,5
+BTS-32,3,3,2,Tephrosia,Yes,2.9,66,13,2,4
+BTS-32,3,4,1,Continous Maize,Yes,1.8,307,28,8,20
+BTS-32,3,4,2,Continous Maize,No,1.8,183,19,5,4
+BTS-33,1,1,1,Tephrosia,No,0.7,487,139,2,51
+BTS-33,1,1,2,Tephrosia,Yes,1.1,80,40,6,69
+BTS-33,1,2,1,Continous Maize,No,0.4,1721,43,62,892
+BTS-33,1,2,2,Continous Maize,Yes,0.8,496,15,69,1406
+BTS-33,1,3,1,Crotolaria,No,2.8,200,60,4,8
+BTS-33,1,3,2,Crotolaria,Yes,4.3,20,5,3,2
+BTS-33,1,4,1,Tithonia,Yes,0.3,1892,351,78,408
+BTS-33,1,4,2,Tithonia,No,0.7,236,86,92,1004
+BTS-34,4,1,1,Crotolaria,Yes,2.3,49,8,2,1
+BTS-34,4,1,2,Crotolaria,No,3.2,7,13,46,63
+BTS-34,4,2,1,Tephrosia,Yes,3.1,14,6,50,59
+BTS-34,4,2,2,Tephrosia,No,1.9,9,2,16,72
+BTS-34,4,3,1,Continous Maize,No,0.4,18,13,491,219
+BTS-34,4,3,2,Continous Maize,Yes,2.1,11,2,194,183
+BTS-34,4,4,1,Tithonia,No,1.7,41,12,29,38
+BTS-34,4,4,2,Tithonia,Yes,4,27,4,80,66
+BTS-9,6,1,1,Continous Maize,Yes,0.2,1056,772,32,
+BTS-9,6,1,2,Continous Maize,No,0.6,1224,745,14,
+BTS-9,6,2,1,Crotolaria,Yes,1.1,545,1878,14,
+BTS-9,6,2,2,Crotolaria,No,1.9,976,471,10,
+BTS-9,6,3,1,Tephrosia,No,1,1603,1637,621,
+BTS-9,6,3,2,Tephrosia,Yes,2.9,635,1152,552,
+BTS-9,6,4,1,Tithonia,No,0.4,909,2522,41,
+BTS-9,6,4,2,Tithonia,Yes,0.6,856,1611,135,

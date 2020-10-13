@@ -1,0 +1,283 @@
+# Factorial Design & Interactions {#factors}
+
+## About the data
+
+The data used in this example is from [Shiphar or Ric -do you have info about this example. Especially what is going on with the distance column -do we need to do something with this since this is what makes it a relay but think just dealing with factors is enough?]
+
+The design was a full factorial design with two factors. Fertiliser (fert) which has three levels - 0kg, 50kg and 100kg; and planting time (plantime) which has 
+
+The objective for this analysis is to investigate the relationship between striga infestation and yield across the different treatments.
+
+The following steps were followed to generate the output in this document.
+The data was organized in excel rectangle columns with the different variables appearing in excel columns. All data checks were done in excel, meaningful data was selected and a copy of this data file was stored as a CSV file to make data import easy in R. The data file used in this analysis can be downloaded [here](https://raw.githubusercontent.com/sdumble1/RAgExperiments/master/Data/RelayP.csv)
+
+
+## Section 1: Steps in analysis using R
+1. Install R packages needed
+```{r, eval=FALSE}
+library(ggplot2)
+library(emmeans)
+library(doBy)
+library(lmerTest)
+library(multcompView)
+library(lattice)
+```
+2. Import data
+```{r, eval=FALSE}
+relay <- read.csv("C:/Users/Admin/Desktop/RelayP.csv")
+
+```
+3. Check and update data
+```{r,eval=FALSE}
+summary(relay)
+str(relay)
+relay$fert<-factor(relay$fert)
+
+```
+4. Explore data
+```{r, eval=FALSE}
+ggplot(data=relay,aes(y=grain,x=fert))+geom_boxplot(aes(colour=plantime))
+
+ggplot(data=relay,aes(y=grain,x=plantime))+geom_boxplot(aes(colour=fert))
+
+summaryBy(grain~fert+plantime, data=relay, FUN=c(mean,median,sd))
+```
+
+5. Specify a model for data
+```{r, eval=FALSE}
+relaymodel<-lmer(grain~plantime*fert+(1|rep), data=RelayP)
+```
+
+6. Check the model
+```{r,eval=FALSE}
+plot(relaymodel)
+
+qqmath(relaymodel)
+```
+7. Interpret the model
+```{r, eval=FALSE}
+anova(relaymodel, ddf="Kenward-Roger")
+print(VarCorr(relaymodel), comp=("Variance"))
+
+```
+
+8. Present the results from the model
+```{r, eval=FALSE}
+emmip(relaymodel,fert~plantime,CIs = TRUE)
+emmip(relaymodel,~fert,CIs = TRUE)
+emmip(relaymodel,~plantime,CIs = TRUE)
+emmeans(relaymodel, ~fert*plantime)
+```
+
+
+## Section 2: Explanation of Steps
+### 1.	Install R packages needed 
+
+A number of packages following packages were used during data exploration and analysis. For a general introduction explaining what R packages are and how they work, this is a really useful guide https://www.datacamp.com/community/tutorials/r-packages-guide. 
+For each of these packages to be installed, using install.packages(), this requires a reliable internet connection and a correctly installed version of R and RStudio. If you are having difficulties installing these packages please ask for help.
+
+```{r,eval=FALSE}
+install.packages("ggplot2")
+library(ggplot2)
+```
+```ggplot2``` This package provides a powerful graphics language for creating elegant and complex graphs in R.
+```{r,eval=FALSE}
+install.packages("emmeans")
+library(emmeans)
+```
+```emmeans``` Estimated marginal means (also known as least squares means) helps provide expected mean values and confidence intervals from statistical models.
+```{r,eval=FALSE}
+install.packages("doBy")
+library(doBy)
+```
+```doBy```Allows easy production of summary statistic tables
+```{r,eval=FALSE}
+install.packages("lmerTest")
+library(lmerTest)
+```
+```lmerTest``` Allows produce of flexible mixed effects regression models, similar to REML in Genstat.
+
+```{r,eval=FALSE}
+install.packages("multcompView")
+library(multcompView)
+```
+```multcompView``` allows for mean seperation methods on analyses
+
+```{r,eval=FALSE}
+install.packages("lattice")
+library(lattice)
+```
+```lattice``` contains functions for producing residual plots for mixed models
+
+
+
+```{r,include=FALSE,echo=FALSE}
+
+library(multcompView)
+library(ggplot2)
+library(emmeans)
+library(doBy)
+library(lmerTest)
+library(multcompView)
+library(lattice)
+```
+
+### 2.	Import data
+
+Our data set saved as a CSV file, so we can use the read.csv commmand to import the data. We are going to assign the name of the data with R to be ```fallow2```. Remember in R Studio you could also use the "Import Dataset" menu to import a dataset. 
+
+```{r,eval=FALSE}
+relay <- read.csv("C:/Users/Admin/Desktop/RelayP.csv")
+```
+
+```{r,echo=FALSE}
+relay <- read.csv("Data/RelayP.csv")
+```
+
+
+### 3.	Check and update data
+
+When reading data into R it is always useful to check that data is in the format expected. How many variables are there? How many rows? How have the columns been read in? The summary command can help to show if the data is being treated correctly.
+
+```{r}
+summary(relay)
+
+
+```
+
+Where data is being treated as a numeric variable (i.e. a number) ```summary``` provides statistics like the mean, min and max. Where data is being treated like a categorical variable (i.e. a group) then summary provides frequency tables.
+
+
+From the results we can see that the variables rep and plot are being considered as numeric variables. However these are grouping variables, not number variables, the numbers used are simply codes. If we do not rectify this then our analysis later will be incorrect and meaningless.  
+This can also be seen more explicitly using the str() function.
+
+```{r}
+str(relay)
+```
+
+So we need to convert these variables into factors. 
+
+```{r}
+relay$fert<-factor(relay$fert)
+```
+
+These commands take the column rep within the data frame fallow, converts into a factor and saves the result in a column called rep within fallow.
+
+### 4.	Explore data
+
+### # Plots
+
+We are now interesting in assessing the relationship between yield and striga - so we want to produce a plot of striga against yield, with different coloured points denoting each treatment.
+
+```{r}
+ggplot(data=relay,aes(y=grain,x=fert))+geom_boxplot(aes(colour=plantime))
+
+
+```
+We can see from the distribution of striga that there are some farms with very high levels of striga, and some farms with no striga. The big range of values makes it hard to make interpretations from this plot, so taking a square root transformation may help to visualise the relationship. A log transformation will not help here because of the large number of 0 values of striga.
+
+```{r}
+ggplot(data=relay,aes(y=grain,x=plantime))+geom_boxplot(aes(colour=fert))
+
+
+```
+
+### # Summary Statistics
+
+To produce summary statistics, by group, there are many options within R. One option is to use the summaryBy function, from the doBy library. The code used for this is quite similar to the code we will use to produce models in a later step.
+
+```{r}
+summaryBy(grain~fert+plantime, data=relay, FUN=c(mean,median,sd))
+```
+
+
+### 5. Specify a model for data
+
+
+In this design, an RCBD, we have one treatment factor, "treat", and one layout factor "rep". More information about model fitting can be found in section 2.
+
+```{r}
+relaymodel<-lmer(grain~plantime*fert+(1|rep), data=relay)
+
+```
+
+
+R is unlike many other software packages in how it fits models. The best way of handling models in R is to assign the model to a name (in this case rcbdmodel1) and then ask R to provide different sorts of output for this model. When you run the above line you will get now output from the data - this is what we expected to see!
+
+### 6. Check the model
+
+Before interpretting the model any further we should investigate the model validity, to ensure any conclusions we draw are valid. There are 3 assumptions that we can check for using standard model checking plots.
+1. Homogeneity (equal variance)
+2. Values with high leverage
+3. Normality of residuals
+
+The function plot() when used with a model will plot the fitted values from the model against the expected values.
+
+
+```{r}
+plot(relaymodel)
+```
+The residual Vs fitted plot is a scatter plot of the Residuals on the y-axis and the fitted on the x-axis and the aim for this plot is to test the assumption of equal variance of the residuals across the range of fitted values. Since the residuals do not funnel out (to form triangular/diamond shape) the assumption of equal variance is met. 
+
+We can also see that there are no extreme values in the residuals which might be potentially causing problems with the validity of our conclusions (leverage)
+
+To assess the assumption of normality we can produce a qqplot. This shows us how closely the residuals follow a normal distribution - if there are severe and syste,matic deviations from the line then we may want to consider an alternative distribution.
+
+```{r}
+qqnorm(resid(relaymodel))
+qqline(resid(relaymodel))
+```
+In this case the residuals seem to fit the assumption required for normality.
+
+### 7. Interpret Model
+
+The anova() function only prints the rows of analysis of variance table for treatment effects when looking at a mixed model fitted using lmer().
+
+```{r}
+anova(relaymodel,ddf="Kenward-Roger")
+```
+
+ddf=Kenward-Roger tells R which method to use for determining the calculations of the table; this option matches the defaults found within SAS or Genstat. The ANOVA table suggests a highly significant effect of the treatment on the yield.
+
+To obtain the residual variance, and the variance attributed to the blocks we need an additional command. From these number it is possible to reconstruct a more classic ANOVA table, if so desired.
+```{r}
+print(VarCorr(relaymodel), comp=("Variance"))
+```
+
+### 8. Present the results from the model
+
+To help understand what the significant result from the ANOVA table means we can produce several plots and tables to help us. First we can use the function emmip() to produce plots of the modelled results, including 95% confidence intervals.
+
+```{r}
+emmip(relaymodel,fert~plantime,CIs = TRUE)
+
+
+```
+
+Or alternatively
+```{r}
+emmip(relaymodel,~fert,CIs = TRUE)
+emmip(relaymodel,~plantime,CIs = TRUE)
+```
+
+
+To obtain the numbers used in creating this graph we can use the function emmeans.
+```{r}
+emmeans(relaymodel, ~fert*plantime)
+
+
+```
+
+And one method for conducting mean separation analysis, holding striga effect constant, we can use the function cld().
+
+```{r}
+cld(emmeans(relaymodel, ~fert))
+cld(emmeans(relaymodel, ~plantime))
+cld(emmeans(relaymodel, ~fert*plantime))
+```
+
+In the output, groups sharing a letter in the .group are not statistically different from each other.
+
+
+## Section 3 – Methodological Principles
+

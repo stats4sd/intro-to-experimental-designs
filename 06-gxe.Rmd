@@ -1,0 +1,370 @@
+# Multi-Environment Trial Analysis {#gxe}
+
+## About the data
+
+The data used in this example is from a study was conducted in Mozambique to assess cowpea performance of 12 different varieties across 5 locations.
+
+The design was an on-station multi-environment trial, with each of the 12 varieties replicated 4 times within each of the 5 locations, in complete blocks. The primary outcome variable was crop yield ("yield"). We also have data collected on the total number of plants harvested per plot.
+
+The first step in the analysis of this dataset may be to analyse the results within each location. These analyses would follow the same approximate structure as was outlined in the previous chapter covering [randomised complete block designs](#rcbd).
+
+The data was organized in Excel rectangle columns with the different variables appearing in Excel columns. All data checks were done in excel, meaningful data was selected and a copy of this data file was stored as a CSV file to make data import easy in R. The data file used in this analysis can be downloaded [here](https://github.com/sdumble1/RAgExperiments/raw/master/Data/All%20Data.zip). 
+
+## Section 1: Steps in analysis using R
+1. Install R packages needed
+```{r, eval=FALSE}
+library(ggplot2)
+library(emmeans)
+library(doBy)
+library(lmerTest)
+library(multcompView)
+library(lattice)
+library(GGEBiplots)
+```
+2. Import data
+```{r, eval=FALSE}
+vartrial <- read.csv("C:/Users/Admin/Desktop/moz multi environment trial.csv")
+```
+3. Check and update data
+```{r,eval=FALSE}
+summary(vartrial)
+str(vartrial)
+
+vartrial$variety<-factor(vartrial$variety)
+vartrial$trial<-factor(vartrial$trial)
+```
+4. Explore data
+```{r, eval=FALSE}
+ggplot(data=vartrial,aes(y=yield,x=varietyname)) +
+  geom_point(aes(colour=environment))
+
+ggplot(data=vartrial,aes(y=yield,x=environment,colour=varietyname,group=varietyname)) +
+  stat_summary(geom="line")
+
+ggplot(data=vartrial,aes(y=yield,x=varietyname))+
+  geom_boxplot(aes(colour=varietyname))+facet_wrap(~environment)
+
+summaryBy(yield~varietyname+environment, data=vartrial, FUN=c(mean,median,sd))
+```
+
+5. Specify a model for data
+```{r, eval=FALSE}
+gxemodel1<-lmer(yield~varietyname*environment+(1|rep:environment), data=vartrial)
+```
+
+6. Check the model
+```{r,eval=FALSE}
+plot(gxemodel1)
+
+qqmath(gxemodel1)
+```
+7. Interpret the model
+```{r, eval=FALSE}
+anova(gxemodel1, ddf="Kenward-Roger")
+print(VarCorr(gxemodel1), comp=("Variance"))
+
+ranova(gxemodel1)
+```
+
+8. Present the results from the model
+```{r, eval=FALSE}
+
+emmip(gxemodel1,~varietyname|environment,CIs = TRUE) +
+    theme(axis.text.x = element_text(angle=90))
+
+emmeans(gxemodel1, ~varietyname|environment)
+
+estimatedmeans<-data.frame(emmeans(gxemodel1, ~varietyname|environment))
+
+cld(emmeans(gxemodel1, ~varietyname*environment))
+
+cld(emmeans(gxemodel1, ~varietyname|environment))
+
+cld(emmeans(gxemodel1, ~environment|varietyname))
+
+
+GxEmeans<-stattable(estimatedmeans$varietyname,estimatedmeans$environment,estimatedmeans$emmean)
+
+gge_model1<-GGEModel(GxEmeans)
+
+WhichWon(gge_model1)
+MeanStability(gge_model1)
+
+
+
+```
+
+
+## Section 2: Explanation of Steps
+### 1.	Install R packages needed 
+
+A number of packages following packages were used during data exploration and analysis. For a general introduction explaining what R packages are and how they work, this is a really useful guide https://www.datacamp.com/community/tutorials/r-packages-guide. 
+For each of these packages to be installed, using install.packages(), this requires a reliable internet connection and a correctly installed version of R and RStudio. If you are having difficulties installing these packages please ask for help.
+
+```{r,eval=FALSE}
+install.packages("ggplot2")
+library(ggplot2)
+```
+`ggplot2` This package provides a powerful graphics language for creating elegant and complex graphs in R.
+Functions used from this package in this tutorial are: `ggplot()`,`geom_boxplot()`,`geom_point()`,`stat_summary()`
+
+```{r,eval=FALSE}
+install.packages("doBy")
+library(doBy)
+```
+`doBy` Allows easy production of summary statistic tables
+Functions used from this package in this tutorial are: `summaryBy()`
+
+```{r,eval=FALSE}
+install.packages("lmerTest")
+library(lmerTest)
+```
+`lmerTest` Allows produce of flexible mixed effects regression models, similar to REML in Genstat.
+Functions used from this package in this tutorial are: `lmer()`,`ranova()`,`VarCorr()`,
+
+```{r,eval=FALSE}
+install.packages("emmeans")
+library(emmeans)
+```
+`emmeans` Estimated marginal means (also known as least squares means) helps provide expected mean values and confidence intervals from statistical models.
+Functions used from this package in this tutorial are: `emmeans()`,`emmip()`
+
+```{r,eval=FALSE}
+install.packages("multcompView")
+library(multcompView)
+```
+`multcompView` allows for mean seperation methods on analyses
+Functions used from this package in this tutorial are: `cld()`
+
+```{r,eval=FALSE}
+install.packages("lattice")
+library(lattice)
+```
+```lattice``` contains functions for producing residual plots for mixed models
+Functions used from this package in this tutorial are: `qqmath()`
+
+
+```{r,include=FALSE,echo=FALSE}
+
+library(ggplot2)
+library(emmeans)
+library(doBy)
+library(lmerTest)
+library(multcompView)
+library(lattice)
+```
+
+### 2.	Import data
+
+Our data set saved as a CSV file, so we can use the read.csv commmand to import the data. We are going to assign the name of the data with R to be ```vartrial```. Remember in R Studio you could also use the "Import Dataset" menu to import a dataset. 
+
+The data file used in this analysis can be downloaded, along with all other data used in this series  [here](https://github.com/sdumble1/RAgExperiments/raw/master/Data/All%20Data.zip). 
+
+```{r,eval=FALSE}
+vartrial <- read.csv("C:/Users/Admin/Desktop/moz multi environment trial.csv")
+```
+
+```{r,echo=FALSE}
+vartrial <- read.csv("Data/moz multi environment trial.csv")
+```
+
+
+### 3.	Check and update data
+
+When reading data into R it is always useful to check that data is in the format expected. How many variables are there? How many rows? How have the columns been read in? The summary command can help to show if the data is being treated correctly.
+
+```{r}
+summary(vartrial)
+```
+
+Where data is being treated as a numeric variable (i.e. a number) `summary()` provides statistics like the mean, min and max. Where data is being treated like a categorical variable (i.e. a group) then summary provides frequency tables.
+
+From the results we can see that the variables rep and plot are being considered as numeric variables. However these are grouping variables, not number variables, the numbers used are simply codes. If we do not rectify this then our analysis later will be incorrect and meaningless.  
+This can also be seen more explicitly using the `str()` function.
+
+```{r}
+str(vartrial)
+```
+
+So we need to convert these variables into factors. 
+
+```{r}
+vartrial$variety<-factor(vartrial$variety)
+vartrial$rep<-factor(vartrial$rep)
+```
+
+These commands take the column rep within the data frame fallow, converts into a factor and saves the result in a column called rep within fallow.
+
+Bear in mind the implications for this - failing to notice will result in a fundamentally incorrect and useless statistical model, if these factors are not treated as factors. https://stats4sd.org/a-problem-with-a-number-of-factors/ 
+
+### 4.	Explore data
+
+### Plots
+
+We are interested in examining the relationship between the different varieties and the yield, and to see to what extent this varies by location. There are a number of different ways that we can choose to make a plot to show this information.
+
+```{r}
+ggplot(data=vartrial,aes(y=yield,x=varietyname,colour=environment)) +
+  geom_point()
+```
+
+From a plot of the raw data values it is clear that yields in one of the locations, Chokwe, are substantially higher than the other 4 locations. The remaining environments are all much closer together, and visually the plot is hard to interpret because several of the environments have overlapping yield values. The density and positioning of the points in the previous plot making it difficult to see the patterns within each site. There are a couple of ways this could be addressed - potentially either using the position argument in the geom_point() function, to jitter the points according to the group, or `facet_wrap()` to split each site into a different panel.
+
+Using the `theme()` function to modify the angle of the axis labels will also help with the visualisation - the command below includes the syntax to rotate the angle of axis text on the x axis by 90 degrees so that these can be read without them colliding into each other.
+
+```{r}
+ggplot(data=vartrial,aes(y=yield,x=varietyname,colour=environment)) +
+  geom_point(position=position_dodge(width=0.5)) +
+    theme(axis.text.x = element_text(angle=90))
+```
+
+```{r}
+ggplot(data=vartrial,aes(y=yield,x=varietyname,colour=environment)) +
+  geom_point() + facet_wrap(~environment) +
+    theme(axis.text.x = element_text(angle=90))
+```
+
+If we wanted to look at boxplots of variety by site, then facets would be the obvious choice in this instance.
+```{r}
+ggplot(data=vartrial,aes(y=yield,x=varietyname))+
+  geom_boxplot(aes(colour=varietyname))+facet_wrap(~environment)+ 
+    theme(axis.text.x = element_text(angle=90))
+  
+```
+A useful function to be aware of in R is reorder(). This will allow us to reorder a categorical variable based on data values. Currently in the plots the order of the varieties is alphabetical, using reorder we could plot from lowest average yield to highest average yield.
+
+```{r}
+vartrial$varietyname<-reorder(vartrial$varietyname,vartrial$yield,mean)
+
+ggplot(data=vartrial,aes(y=yield,x=varietyname,colour=environment)) +
+  geom_point() + facet_wrap(~environment) +
+    theme(axis.text.x = element_text(angle=90))
+```
+
+stat_summary() is a useful function for plotting summary statistics instead of raw data values (in e.g. scatter plots) or distributions of values (in e.g. boxplots or violin plots). This might help us to see the interaction and which of the varieties are performing well more clearly.
+
+```{r}
+ggplot(data=vartrial,aes(y=yield,colour=environment,group=environment,x=varietyname)) +
+  stat_summary(geom="line") +
+    theme(axis.text.x = element_text(angle=90))
+```
+
+This plot is sometimes called an interaction plot. It helps us to visualise whether there is a genotype by environment (or option by context interaction). If there was no interaction we would expect these lines to run in parallel to each other - with the varieties that were high yielding in one environment being high yielding in other environments. In this plot we can see a few cases where there is a clear GxE interaction - most obviously relating to the INIA-41 variety. This particular variety is seen to be the highest yielding variety in the two "Macia" environments, but amongst the lowest yielding in Chokwe and Nhacoongo sites. 
+
+### Summary Statistics
+
+To produce summary statistics, by group, there are many options within R. One option is to use the `summaryBy()` function, from the doBy library. The code used for this is quite similar to the code we will use to produce models in a later step. Using the plus sign within these functions provides the means for each combination of the two factors, variety and environment.
+
+```{r}
+summaryBy(yield~varietyname+environment, data=vartrial, FUN=c(mean,median,sd))
+```
+
+### 5. Specify a model for data
+
+In this design, an RCBD, we have one treatment factor, "treat", and one layout factor "rep". More information about model fitting can be found in section 2.
+
+```{r}
+gxemodel1<-lmer(yield~varietyname*environment+(1|rep:environment), data=vartrial)
+```
+
+R is unlike many other software packages in how it fits models. The best way of handling models in R is to assign the model to a name (in this case rcbdmodel1) and then ask R to provide different sorts of output for this model. When you run the above line you will get now output from the data - this is what we expected to see!
+
+### 6. Check the model
+
+Before interpretting the model any further we should investigate the model validity, to ensure any conclusions we draw are valid. There are 3 assumptions that we can check for using standard model checking plots.
+1. Homogeneity (equal variance)
+2. Values with high leverage
+3. Normality of residuals
+
+The function plot() when used with a model will plot the fitted values from the model against the expected values.
+
+
+```{r}
+plot(gxemodel1)
+```
+The residual Vs fitted plot is a scatter plot of the Residuals on the y-axis and the fitted on the x-axis and the aim for this plot is to test the assumption of equal variance of the residuals across the range of fitted values. Since the residuals do not funnel out (to form triangular/diamond shape) the assumption of equal variance is met. 
+
+We can also see that there are no extreme values in the residuals which might be potentially causing problems with the validity of our conclusions (leverage)
+
+To assess the assumption of normality we can produce a qqplot. This shows us how closely the residuals follow a normal distribution - if there are severe and syste,matic deviations from the line then we may want to consider an alternative distribution.
+
+```{r}
+qqmath(gxemodel1)
+```
+In this case the residuals seem to fit the assumption required for normality.
+
+### 7. Interpret Model
+
+The anova() function only prints the rows of analysis of variance table for treatment effects when looking at a mixed model fitted using lmer().
+
+```{r}
+anova(gxemodel1, ddf="Kenward-Roger")
+```
+
+ddf=Kenward-Roger tells R which method to use for determining the calculations of the table; this option matches the defaults found within SAS or Genstat. The ANOVA table suggests a highly significant effect of the treatment on the yield.
+
+To obtain the residual variance, and the variance attributed to the blocks we need an additional command. From these number it is possible to reconstruct a more classic ANOVA table, if so desired.
+```{r}
+print(VarCorr(gxemodel1), comp=("Variance"))
+
+ranova(gxemodel1)
+```
+
+### 8. Present the results from the model
+
+To help understand what the significant result from the ANOVA table means we can produce several plots and tables to help us. First we can use the function emmip() to produce plots of the modelled results, including 95% confidence intervals.
+
+```{r}
+emmip(gxemodel1,~varietyname|environment,CIs = TRUE) +
+    theme(axis.text.x = element_text(angle=90))
+```
+
+To obtain the numbers used in creating this graph we can use the function emmeans.
+```{r}
+emmeans(gxemodel1, ~varietyname|environment)
+estimatedmeans<-data.frame(emmeans(gxemodel1, ~varietyname|environment))
+```
+
+Given the presence of a significant interaction we cannot justify conducted a mean seperation analysis for varieties overall. We have two possible choices - either conducting a mean seperation analysis of all combinations of the interaction or conducting seperate mean seperation analyses within each site.
+
+If there is a fairly limited number of unique combinations of the interaction terms then the overall mean speeration analysis may be viable. However in this particular instance there are 80 combinationsof variety and environment, and trying to seperate all 80 of these at once will result in an analysis which is veyr hard to coherently interpret.
+
+```{r}
+CLD(emmeans(gxemodel1, ~varietyname*environment))
+
+```
+
+Modifying the code from `varietyname*environment` to `varietyname|environment` changes the analysis so that instead of seperating all of the interaction components it does a mean seperation of variety within each environment - so a total of 5 seperate analyses in this instance. This is likely to provide better insights than the overall analysis.
+
+```{r}
+CLD(emmeans(gxemodel1, ~varietyname|environment))
+```
+
+Equally switching the terms around, to determine whether varietal performance varies by environment could be a worthwhile analysis to investigate.
+
+```{r}
+CLD(emmeans(gxemodel1, ~environment|varietyname))
+```
+
+In the output, groups sharing a letter in the .group are not statistically different from each other.
+
+Some other methods of looking at the GxE interaction would be through dimension reduction techniques like biplots
+
+```{r,fig.height=6,fig.width=6}
+
+GxEmeans<-stattable(estimatedmeans$varietyname,estimatedmeans$environment,estimatedmeans$emmean)
+
+gge_model1<-GGEModel(GxEmeans)
+
+WhichWon(gge_model1)
+MeanStability(gge_model1)
+  
+```
+
+These biplots help to show that the IT98K-1105-5 Variety is the highest overall yielding variety, and is relatively stable in that it is high yielding in all environments. However it is the "best" (i.e. highest yielding) variety in none of the five varieties. The 5 environments form into two clusters - with Macia and Umbeluzi having INIA-152 as the strongest variety and Chokwe and Nhacoongo having UC-CB46 as the highest yielding variety.
+
+For more information about use of biplots in R, please see [here](add link to somewhere) or [here](add link to somewhere)
+
+## Section 3 – Methodological Principles
+
+Dealing with a multi-environment analysis requires much more thought than a simple on-station analysis. The next steps from completing this part of the analysis would be to start considering why we are seeing interactions across sites, and characteristation of the different sites. This will help us to make better and more informed conclusions about why certain varieties might be performing differently in different locations. Being able to make localised, or contextualised reccomendations will result in overall better outcomes than a blanket reccomendation of a single moderate, but stable, performing treatment. However, this really requires us to fully understand our system and collecting and utilising data either formally, through use of covariates that may differ from each site (altitude, soil, plot management etc.) or informally through our own knowledge of the conditions within each site, where formal data may not exist is a vital component to this. Understanding our environments, and the key factors differing our environments, will help the conclusions drawn from these experiments to provide genuine insights beyond a simple conclusion that perfomance is different in different locations.
